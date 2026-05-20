@@ -8,7 +8,7 @@ enable_language(C ASM)
 
 target_compile_definitions(stm32cubemx INTERFACE 
 	USE_HAL_DRIVER 
-	STM32F411xE
+    STM32F401xE
     $<$<CONFIG:Debug>:DEBUG>
 )
 
@@ -22,6 +22,14 @@ target_include_directories(stm32cubemx INTERFACE
     ../../Drivers/CMSIS/Device/ST/STM32F4xx/Include
     ../../Drivers/CMSIS/Include
 )
+
+set(STM32_STARTUP_FILE "${CMAKE_CURRENT_LIST_DIR}/../../startup_stm32f401retx.s")
+if(NOT EXISTS "${STM32_STARTUP_FILE}")
+    set(STM32_STARTUP_FILE "${CMAKE_CURRENT_LIST_DIR}/../../startup_stm32f401xe.s")
+endif()
+if(NOT EXISTS "${STM32_STARTUP_FILE}")
+    message(FATAL_ERROR "STM32F401 startup file not found. Generate CubeMX code to create startup_stm32f401retx.s or startup_stm32f401xe.s.")
+endif()
 
 target_sources(stm32cubemx INTERFACE
     ../../Core/Src/main.c
@@ -60,7 +68,7 @@ target_sources(stm32cubemx INTERFACE
     ../../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c
     ../../Core/Src/sysmem.c
     ../../Core/Src/syscalls.c
-    ../../startup_stm32f411xe.s
+    ${STM32_STARTUP_FILE}
 )
 
 target_link_directories(stm32cubemx INTERFACE
